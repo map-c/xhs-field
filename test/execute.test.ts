@@ -16,6 +16,17 @@ describe('xhs humanize field execute', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('拒绝超过 8000 个字符的正文且不调用服务', async () => {
+    const fetch = vi.fn();
+    const result = await executeXhsHumanizeField(
+      { fetch },
+      { sourceText: '正文'.repeat(4_001), intensity: 'balanced' },
+    );
+
+    expect(result.code).toBe(FieldExecuteCode.InvalidArgument);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('参数错误只报告值形态而不泄露正文', async () => {
     const fetch = vi.fn();
     const result = await executeXhsHumanizeField(
@@ -139,5 +150,76 @@ describe('xhs humanize field execute', () => {
     );
 
     expect(result.code).toBe(FieldExecuteCode.RateLimit);
+  });
+
+  it('映射服务鉴权错误', async () => {
+    const result = await executeXhsHumanizeField(
+      {
+        fetch: vi.fn().mockResolvedValue({
+          ok: false,
+          status: 401,
+          json: async () => ({
+            ok: false,
+            requestId: 'request-auth',
+            error: { code: 'UNAUTHORIZED' },
+          }),
+        }),
+      },
+      { sourceText, intensity: 'balanced' },
+    );
+
+    expect(result.code).toBe(FieldExecuteCode.AuthorizationError);
+  });
+
+  it('映射服务配额耗尽错误', async () => {
+    const result = await executeXhsHumanizeField(
+      {
+        fetch: vi.fn().mockResolvedValue({
+          ok: false,
+          status: 402,
+          json: async () => ({
+            ok: false,
+            requestId: 'request-quota',
+            error: { code: 'QUOTA_EXHAUSTED' },
+          }),
+        }),
+      },
+      { sourceText, intensity: 'balanced' },
+    );
+
+    expect(result.code).toBe(FieldExecuteCode.QuotaExhausted);
+  });
+
+  it('拒绝结构无效的成功响应', async () => {
+    const result = await executeXhsHumanizeField(
+      {
+        fetch: vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          json: async () => ({ ok: true, requestId: 'request-invalid' }),
+        }),
+      },
+      { sourceText, intensity: 'balanced' },
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.Error,
+        errorMessage: 'serviceUnavailable',
+      }),
+    );
+  });
+
+  it('将网络异常映射为服务不可用', async () => {
+    const result = await executeXhsHumanizeField(
+      { fetch: vi.fn().mockRejectedValue(new Error('network unavailable')) },
+      { sourceText, intensity: 'balanced' },
+    );
+
+    expect(result).toEqual({
+      code: FieldExecuteCode.Error,
+      errorMessage: 'serviceUnavailable',
+      msg: 'network unavailable',
+    });
   });
 });

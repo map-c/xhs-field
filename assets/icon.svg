@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">目标文章去 AI 味字段图标</title>
+  <desc id="desc">青绿色方形背景上的文章页面、自然文本曲线和编辑闪光符号</desc>
+  <rect width="512" height="512" rx="88" fill="#2C7A72"/>
+  <rect x="110" y="88" width="292" height="348" rx="42" fill="#1F2928" opacity="0.2"/>
+  <rect x="96" y="74" width="292" height="348" rx="42" fill="#FFFDF8"/>
+  <rect x="96" y="74" width="292" height="66" rx="34" fill="#25272A"/>
+  <circle cx="139" cy="107" r="9" fill="#E5484D"/>
+  <circle cx="169" cy="107" r="9" fill="#FFD166"/>
+  <path d="M144 206c34-27 68 27 102 0s68 27 102 0" fill="none" stroke="#25272A" stroke-width="16" stroke-linecap="round"/>
+  <path d="M144 263c27-21 54 21 81 0s54 21 81 0" fill="none" stroke="#AEB4B8" stroke-width="14" stroke-linecap="round"/>
+  <path d="M144 320c30-23 60 23 90 0s60 23 90 0" fill="none" stroke="#E5484D" stroke-width="14" stroke-linecap="round"/>
+  <path d="m338 350 76-76" fill="none" stroke="#25272A" stroke-width="34" stroke-linecap="round"/>
+  <path d="m386 302 28-28" fill="none" stroke="#FFFDF8" stroke-width="10" stroke-linecap="round"/>
+  <path d="m411 151 11 29 29 11-29 11-11 29-11-29-29-11 29-11 11-29Z" fill="#FFD166" stroke="#25272A" stroke-width="8" stroke-linejoin="round"/>
+</svg>

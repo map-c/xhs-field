@@ -4,6 +4,12 @@
 
 字段会保留原文的事实、主题和业务信息，只返回改写后的完整正文。它不负责采集链接、解析网页、生成新卖点，也不承诺规避 AI 检测或平台风控。
 
+公共源码仓库：[`map-c/xhs-field`](https://github.com/map-c/xhs-field)。该仓库只发布本字段，不包含共享后端或 monorepo 中的其他私有应用。
+
+![目标文章去 AI 味字段图标](assets/icon.svg)
+
+图标源文件为 512 x 512 的正方形 SVG，可直接用于字段展示。
+
 ## 输入
 
 | 配置项 | 说明 |
@@ -55,6 +61,8 @@ npm run pack
 ```text
 POST https://field.kazhilian.com/v1/tools/xhs-humanize-rewrite
 Authorization: Bearer <service-api-key>
+Authorization ID: xhs_ai_tools_service
+Authorization type: HeaderBearerToken
 ```
 
 钉钉字段授权 ID 为 `xhs_ai_tools_service`，允许访问的域名为 `field.kazhilian.com`。服务鉴权失败、限流、配额不足或响应异常时，字段会返回对应的钉钉执行错误码，不会返回不完整正文。

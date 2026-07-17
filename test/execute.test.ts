@@ -12,7 +12,12 @@ describe('xhs humanize field execute', () => {
       { sourceText: '正文过短', intensity: 'balanced' },
     );
 
-    expect(result.code).toBe(FieldExecuteCode.InvalidArgument);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.InvalidArgument,
+        errorMessage: 'invalidSourceText',
+      }),
+    );
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -23,7 +28,12 @@ describe('xhs humanize field execute', () => {
       { sourceText: '正文'.repeat(4_001), intensity: 'balanced' },
     );
 
-    expect(result.code).toBe(FieldExecuteCode.InvalidArgument);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.InvalidArgument,
+        errorMessage: 'invalidSourceText',
+      }),
+    );
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -55,7 +65,12 @@ describe('xhs humanize field execute', () => {
       { sourceText, intensity: 'unknown' },
     );
 
-    expect(result.code).toBe(FieldExecuteCode.InvalidArgument);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.InvalidArgument,
+        errorMessage: 'invalidIntensity',
+      }),
+    );
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -149,7 +164,12 @@ describe('xhs humanize field execute', () => {
       { sourceText, intensity: 'balanced' },
     );
 
-    expect(result.code).toBe(FieldExecuteCode.RateLimit);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.RateLimit,
+        errorMessage: 'serviceRateLimited',
+      }),
+    );
   });
 
   it('映射服务鉴权错误', async () => {
@@ -168,7 +188,12 @@ describe('xhs humanize field execute', () => {
       { sourceText, intensity: 'balanced' },
     );
 
-    expect(result.code).toBe(FieldExecuteCode.AuthorizationError);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.AuthorizationError,
+        errorMessage: 'serviceUnauthorized',
+      }),
+    );
   });
 
   it('映射服务配额耗尽错误', async () => {
@@ -187,7 +212,83 @@ describe('xhs humanize field execute', () => {
       { sourceText, intensity: 'balanced' },
     );
 
-    expect(result.code).toBe(FieldExecuteCode.QuotaExhausted);
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.QuotaExhausted,
+        errorMessage: 'serviceQuotaExhausted',
+      }),
+    );
+  });
+
+  it('将模型超时映射为可操作提示', async () => {
+    const result = await executeXhsHumanizeField(
+      {
+        fetch: vi.fn().mockResolvedValue({
+          ok: false,
+          status: 504,
+          json: async () => ({
+            ok: false,
+            requestId: 'request-timeout',
+            error: { code: 'MODEL_TIMEOUT' },
+          }),
+        }),
+      },
+      { sourceText, intensity: 'strong' },
+    );
+
+    expect(result).toEqual({
+      code: FieldExecuteCode.Error,
+      errorMessage: 'serviceTimeout',
+      msg: 'service status=504, code=MODEL_TIMEOUT, requestId=request-timeout',
+    });
+  });
+
+  it('将模型不可用映射为独立提示', async () => {
+    const result = await executeXhsHumanizeField(
+      {
+        fetch: vi.fn().mockResolvedValue({
+          ok: false,
+          status: 503,
+          json: async () => ({
+            ok: false,
+            requestId: 'request-unavailable',
+            error: { code: 'MODEL_UNAVAILABLE' },
+          }),
+        }),
+      },
+      { sourceText, intensity: 'balanced' },
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.Error,
+        errorMessage: 'modelUnavailable',
+      }),
+    );
+  });
+
+  it('将模型质量校验失败映射为重新生成提示', async () => {
+    const result = await executeXhsHumanizeField(
+      {
+        fetch: vi.fn().mockResolvedValue({
+          ok: false,
+          status: 502,
+          json: async () => ({
+            ok: false,
+            requestId: 'request-invalid-output',
+            error: { code: 'INVALID_MODEL_OUTPUT' },
+          }),
+        }),
+      },
+      { sourceText, intensity: 'balanced' },
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        code: FieldExecuteCode.Error,
+        errorMessage: 'invalidModelOutput',
+      }),
+    );
   });
 
   it('拒绝结构无效的成功响应', async () => {

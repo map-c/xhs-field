@@ -46,6 +46,7 @@ export async function executeXhsHumanizeField(
   if (!sourceText || sourceText.length < 50 || sourceText.length > 8_000) {
     return {
       code: FieldExecuteCode.InvalidArgument,
+      errorMessage: 'invalidSourceText',
       msg: `sourceText must contain 50 to 8000 characters; received ${describeSourceText(formData.sourceText)}; formData=${describeValueShape(formData)}`,
     };
   }
@@ -54,6 +55,7 @@ export async function executeXhsHumanizeField(
   if (!intensity) {
     return {
       code: FieldExecuteCode.InvalidArgument,
+      errorMessage: 'invalidIntensity',
       msg: `intensity must be light, balanced, or strong; received ${describeValueShape(formData.intensity)}`,
     };
   }
@@ -165,16 +167,53 @@ function mapApiError(
   const msg = `service status=${status}, code=${code ?? 'UNKNOWN'}, requestId=${requestId ?? 'unknown'}`;
 
   if (status === 400 || code === 'INVALID_INPUT') {
-    return { code: FieldExecuteCode.InvalidArgument, msg };
+    return {
+      code: FieldExecuteCode.InvalidArgument,
+      errorMessage: 'invalidSourceText',
+      msg,
+    };
   }
   if (status === 401 || status === 403 || code === 'UNAUTHORIZED') {
-    return { code: FieldExecuteCode.AuthorizationError, msg };
+    return {
+      code: FieldExecuteCode.AuthorizationError,
+      errorMessage: 'serviceUnauthorized',
+      msg,
+    };
   }
   if (status === 429 || code === 'RATE_LIMITED') {
-    return { code: FieldExecuteCode.RateLimit, msg };
+    return {
+      code: FieldExecuteCode.RateLimit,
+      errorMessage: 'serviceRateLimited',
+      msg,
+    };
   }
   if (status === 402 || code === 'QUOTA_EXHAUSTED') {
-    return { code: FieldExecuteCode.QuotaExhausted, msg };
+    return {
+      code: FieldExecuteCode.QuotaExhausted,
+      errorMessage: 'serviceQuotaExhausted',
+      msg,
+    };
+  }
+  if (status === 504 || code === 'MODEL_TIMEOUT') {
+    return {
+      code: FieldExecuteCode.Error,
+      errorMessage: 'serviceTimeout',
+      msg,
+    };
+  }
+  if (code === 'INVALID_MODEL_OUTPUT') {
+    return {
+      code: FieldExecuteCode.Error,
+      errorMessage: 'invalidModelOutput',
+      msg,
+    };
+  }
+  if (status === 502 || status === 503 || code === 'MODEL_UNAVAILABLE') {
+    return {
+      code: FieldExecuteCode.Error,
+      errorMessage: 'modelUnavailable',
+      msg,
+    };
   }
   return {
     code: FieldExecuteCode.Error,

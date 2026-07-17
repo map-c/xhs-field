@@ -1,0 +1,16 @@
+{
+  "name": "@xhs/field-xhs-humanize",
+  "version": "0.1.0",
+  "private": true,
+  "description": "钉钉 AI 表格目标文章去 AI 味字段",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "dingtalk-docs-cool-app start:field",
+    "pack": "dingtalk-docs-cool-app pack:field",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "devDependencies": {
+    "dingtalk-docs-cool-app": "0.3.4"
+  }
+}

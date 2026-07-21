@@ -6,8 +6,10 @@ import {
 } from 'dingtalk-docs-cool-app';
 import { executeXhsHumanizeField } from './execute';
 import {
+  SERVICE_ACCOUNT_INFO_URL,
   SERVICE_ALLOWED_HOSTS,
   SERVICE_AUTHORIZATION_ID,
+  SERVICE_AUTHORIZATION_ICON_URL,
 } from './service-config';
 
 const { t } = fieldDecoratorKit;
@@ -88,10 +90,13 @@ fieldDecoratorKit.setDecorator({
     platform: 'XHS AI Tools',
     type: AuthorizationType.HeaderBearerToken,
     required: true,
-    instructionsUrl: 'https://alidocs.dingtalk.com',
+    instructionsUrl: SERVICE_ACCOUNT_INFO_URL,
     label: t('serviceAuthLabel'),
     tooltips: t('serviceAuthTooltip'),
-    icon: { light: '', dark: '' },
+    icon: {
+      light: SERVICE_AUTHORIZATION_ICON_URL,
+      dark: SERVICE_AUTHORIZATION_ICON_URL,
+    },
   },
   formItems: [
     {

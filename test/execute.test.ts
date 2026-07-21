@@ -1,10 +1,25 @@
 import { describe, expect, it, vi } from 'vitest';
 import { FieldExecuteCode } from 'dingtalk-docs-cool-app';
 import { executeXhsHumanizeField } from '../src/execute.js';
+import fieldDecoratorKit from '../src/index.js';
+import {
+  SERVICE_ACCOUNT_INFO_URL,
+  SERVICE_AUTHORIZATION_ICON_URL,
+} from '../src/service-config.js';
 
 const sourceText = '这是一篇用于钉钉字段端到端测试的完整文章正文。'.repeat(5);
 
 describe('xhs humanize field execute', () => {
+  it('将获取账号信息链接和授权图标写入字段配置', () => {
+    expect(fieldDecoratorKit.getDecorator()?.authorizations).toMatchObject({
+      instructionsUrl: SERVICE_ACCOUNT_INFO_URL,
+      icon: {
+        light: SERVICE_AUTHORIZATION_ICON_URL,
+        dark: SERVICE_AUTHORIZATION_ICON_URL,
+      },
+    });
+  });
+
   it('拒绝过短正文且不调用服务', async () => {
     const fetch = vi.fn();
     const result = await executeXhsHumanizeField(

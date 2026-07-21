@@ -63,7 +63,10 @@ POST https://field.kazhilian.com/v1/tools/xhs-humanize-rewrite
 Authorization: Bearer <service-api-key>
 Authorization ID: xhs_ai_tools_service
 Authorization type: HeaderBearerToken
+Account info: https://field.kazhilian.com/account/api-key
 ```
+
+钉钉关联账号弹窗中的“获取账号信息”会打开上述公开说明页。普通字段用户按页面说明向组织管理员申请 Key；只有已授权的管理员或运维人员才能进入 Key 管理端签发凭据。
 
 钉钉字段授权 ID 为 `xhs_ai_tools_service`，允许访问的域名为 `field.kazhilian.com`。服务鉴权失败、限流、配额不足或响应异常时，字段会返回对应的钉钉执行错误码，不会返回不完整正文。
 
@@ -72,7 +75,7 @@ Authorization type: HeaderBearerToken
 ```text
 src/index.ts           字段配置、表单和多语言文案
 src/execute.ts         输入校验、服务调用和错误映射
-src/service-config.ts  服务地址、授权 ID 和 API 版本
+src/service-config.ts  服务地址、账号说明链接、授权 ID 和 API 版本
 test/execute.test.ts   字段执行逻辑测试
 config.example.json    本地调试配置示例
 ```
